@@ -99,6 +99,24 @@ class MoonshotChatConfig(OpenAIGPTConfig):
         
         return final_params
 
+    def _convert_function_call_to_tool_choice(self, function_call: Union[str, dict]) -> Optional[Union[str, dict]]:
+        """
+        Convert OpenAI function_call parameter to tool_choice parameter.
+        
+        Args:
+            function_call: OpenAI function_call value (str or dict)
+            
+        Returns:
+            Moonshot tool_choice value or None
+        """
+        if function_call == "auto":
+            return "auto"
+        elif function_call == "none":
+            return "none"
+        elif isinstance(function_call, dict) and "name" in function_call:
+            return {"type": "function", "function": {"name": function_call["name"]}}
+        return None
+
     def map_openai_params(
         self,
         non_default_params: dict,
@@ -119,6 +137,25 @@ class MoonshotChatConfig(OpenAIGPTConfig):
                 optional_params["max_tokens"] = value
             elif param in supported_openai_params:
                 optional_params[param] = value
+
+        ##########################################
+        # OpenAI function calling compatibility layer
+        ##########################################
+        if "functions" in non_default_params and non_default_params["functions"]:
+            moonshot_tools: List[dict] = optional_params.get("tools", []) or []
+            moonshot_tools.extend(
+                {"type": "function", "function": function_def}
+                for function_def in non_default_params["functions"]
+            )
+            optional_params["tools"] = moonshot_tools
+
+        if "function_call" in non_default_params:
+            function_call_value = non_default_params["function_call"]
+            if "tool_choice" not in optional_params:
+                tool_choice = self._convert_function_call_to_tool_choice(function_call_value)
+                if tool_choice is not None:
+                    optional_params["tool_choice"] = tool_choice
+            optional_params.pop("function_call", None)
 
         ##########################################
         # temperature limitations
