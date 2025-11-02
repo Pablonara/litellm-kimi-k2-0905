@@ -64,8 +64,8 @@ class TestMoonshotConfig:
         # Should NOT include functions (not supported by Moonshot AI)
         assert "functions" not in supported_params
 
-    def test_map_openai_params_excludes_functions(self):
-        """Test that functions parameter is not mapped"""
+    def test_map_openai_params_converts_functions_to_tools(self):
+        """Test that legacy functions parameter is converted to tools"""
         config = MoonshotChatConfig()
         
         non_default_params = {
@@ -81,14 +81,34 @@ class TestMoonshotConfig:
             drop_params=False
         )
         
-        # Functions should not be in result (not in supported params)
         assert "functions" not in result
-        # Other supported params should be included
+        assert result.get("tools") == [
+            {"type": "function", "function": {"name": "test_function", "description": "Test function"}}
+        ]
         assert result.get("temperature") == 0.7
         assert result.get("max_tokens") == 1000
 
-
-
+    def test_map_openai_params_converts_function_call_to_tool_choice(self):
+        """Test that function_call parameter is converted to tool_choice"""
+        config = MoonshotChatConfig()
+        
+        non_default_params = {
+            "functions": [{"name": "test_function", "description": "Test function"}],
+            "function_call": {"name": "test_function"},
+        }
+        
+        result = config.map_openai_params(
+            non_default_params=non_default_params,
+            optional_params={},
+            model="moonshot-v1-8k",
+            drop_params=False
+        )
+        
+        assert "function_call" not in result
+        assert result.get("tool_choice") == {"type": "function", "function": {"name": "test_function"}}
+        assert result.get("tools") == [
+            {"type": "function", "function": {"name": "test_function", "description": "Test function"}}
+        ]
 
     def test_map_openai_params_allows_other_tool_choice_values(self):
         """Test that other tool_choice values are allowed"""
