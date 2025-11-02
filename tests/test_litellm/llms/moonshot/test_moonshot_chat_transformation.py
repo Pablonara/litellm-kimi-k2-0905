@@ -64,18 +64,6 @@ class TestMoonshotConfig:
         # Should NOT include functions (not supported by Moonshot AI)
         assert "functions" not in supported_params
 
-    def test_get_supported_openai_params_kimi_k2_preview_excludes_tools(self):
-        """Test that kimi-k2 preview models exclude tool usage."""
-        config = MoonshotChatConfig()
-
-        supported_params = config.get_supported_openai_params(
-            "moonshot/kimi-k2-0905-preview"
-        )
-
-        assert "functions" not in supported_params
-        assert "tools" not in supported_params
-        assert "tool_choice" not in supported_params
-
     def test_map_openai_params_excludes_functions(self):
         """Test that functions parameter is not mapped"""
         config = MoonshotChatConfig()

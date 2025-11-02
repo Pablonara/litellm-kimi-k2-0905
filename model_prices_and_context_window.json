@@ -16185,8 +16185,8 @@
         "mode": "chat",
         "output_cost_per_token": 2.5e-06,
         "source": "https://platform.moonshot.ai/docs/pricing/chat#generation-model-kimi-k2",
-        "supports_function_calling": false,
-        "supports_tool_choice": false,
+        "supports_function_calling": true,
+        "supports_tool_choice": true,
         "supports_web_search": true
     },
     "moonshot/kimi-k2-0905-preview": {
@@ -16199,8 +16199,8 @@
         "mode": "chat",
         "output_cost_per_token": 2.5e-06,
         "source": "https://platform.moonshot.ai/docs/pricing/chat#generation-model-kimi-k2",
-        "supports_function_calling": false,
-        "supports_tool_choice": false,
+        "supports_function_calling": true,
+        "supports_tool_choice": true,
         "supports_web_search": true
     },
     "moonshot/kimi-latest": {
